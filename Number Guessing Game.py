@@ -17,7 +17,7 @@ def Choice(ch):
     choice = ch
 
     if choice == 3:
-        print('Thanks For Coming !!!')
+        print('\nThanks For Coming !!!')
         sleep(2)
         exit(0)
 
@@ -25,61 +25,92 @@ def Choice(ch):
         Play()
         while True:
             replay = input('\nWanna Play Again ?(YES/NO)\t')
-            if replay == 'NO' or 'no' or 'No':
+            if replay == 'NO' or 'no' or 'No' or 'nO' or 'n' or 'N':
                 break
-            else:
+            elif replay == 'Y' or 'y' or ' YES' or 'yes' or 'Yes':
                 Play()
 
     elif choice == 2:
         if not os.path.isfile('D:/PyGames/NGG.txt'):
-            print('\nNo Result Found.\nYou are the first Player.\n')
+            print('\n\nNo Result Found.\nYou are the first Player.\n')
 
         else:
+            print()
             f = open('D:/PyGames/NGG.txt')
             print(f.read())
             f.close()
 
     else:
-        print('Please enter a valid choice.')
+        print('\nPlease enter a valid choice.')
 
     Show()
 
 
 def Play():
-    name = input('\nEnter your full Name:\t')
-    upper_limit = int(input('\nEnter the upper limit:\t'))
-    lower_limit = int(input('Enter the lower limit:\t'))
+    while True:
+        name = input('\nEnter your full Name:\t')
+        if not all(x.isalpha() or x.isspace() for x in name):
+            print("\nEnter a valid name.")
+        else:
+            break
+
+    while True:
+        lower_limit = input('\nEnter the lower limit:\t')
+        if not lower_limit.isnumeric():
+            print('Enter positive numbers only.')
+        else:
+            lower_limit = int(lower_limit)
+            break
+
+    while True:
+        upper_limit = input('\nEnter the upper limit:\t')
+        if not upper_limit.isnumeric():
+            print('\nEnter positive numbers only.')
+        elif int(upper_limit) <= lower_limit:
+            print('\nUpper Limit should be greater than lower limit.')
+        else:
+            upper_limit = int(upper_limit)
+            break
 
     generated_number = random.randint(lower_limit, upper_limit)
 
-    attempt = 1
+    attempt = 0
 
-    while attempt <= 5:
-        print('\nRemaining Chances:\t', 5 - attempt)
+    while attempt < 5:
+        print('\nAttempts in hand:\t', 5 - attempt)
         print('Lower Limit:\t', lower_limit)
         print('Upper Limit:\t', upper_limit)
 
-        guessed_number = int(input("\nEnter your guess in the range of upper and lower limit:\t"))
+        guessed_number = input("\nEnter your guess in the range of upper and lower limit:\t")
+        if not guessed_number.isnumeric():
+            print('\nEnter numbers only.')
+            continue
+        else:
+            guessed_number = int(guessed_number)
 
-        if guessed_number == generated_number:
-            print('Correct !')
+        if guessed_number > upper_limit or guessed_number < lower_limit:
+            print('\nEnter the Number in the limits provided.')
+            continue
+
+        elif guessed_number == generated_number:
+            print('\nCorrect !')
             break
 
         elif guessed_number > generated_number:
-            print('Guessed number is big.')
+            print('\nGuessed number is big.')
             attempt += 1
 
         else:
-            print('Guessed number is small.')
+            print('\nGuessed number is small.')
             attempt += 1
 
-    if attempt < 6:
-        print(name, 'guessed the number in ', attempt, 'attempts.')
+    if attempt < 5:
+        print(name, 'guessed the number in ', attempt + 1, 'attempts.')
     else:
-        print('OOPS !!! Maximum attempt reached.\nDon\'t Worry, You can try again.')
+        print('\nOOPS !!! Maximum attempt reached.\nDon\'t Worry, You can try again.')
         print('\nThe correct number was\t', generated_number)
 
-    Record(name, attempt)
+    Record(name, attempt + 1)
 
 
 def Record(name, attempt):
@@ -87,18 +118,36 @@ def Record(name, attempt):
         os.mkdir('D:/PyGames')
 
     if not os.path.isfile('D:/PyGames/NGG.txt'):
-        f = open('D:/PyGames/NGG.txt', 'x')
-        f.close()
+        file = open('D:/PyGames/NGG.txt', 'x')
+        file.close()
+
+    file = open('D:/PyGames/NGG.txt')
+    lines = file.readlines()
+
+    if len(lines) == 5:
+        file = open('D:/PyGames/NGG.txt')
+        lines = file.readlines()
+        file.close()
+
+        del lines[0]
+
+        new_file = open('D:/PyGames/NGG.txt', 'w+')
+        for line in lines:
+            new_file.write(line)
+        new_file.close()
+
+    file.close()
 
     if attempt > 5:
         f = open('D:/PyGames/NGG.txt', 'a')
         f.write('%s could not guessed the number in 5 attempts.\n' % name)
         f.close()
 
-    elif attempt <= 5:
+    else:
         f = open('D:/PyGames/NGG.txt', 'a')
         f.write('%s Guessed the number in %d attempts.\n' % (name, attempt))
         f.close()
 
 
+# Main Function Calling Show()
 Show()
